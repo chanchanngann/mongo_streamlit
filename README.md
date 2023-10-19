@@ -57,12 +57,10 @@ __What is being done in ```mongo_kickoff.sh```__
          server_addr		12.34.56.78:5000
 		 
 2. Create IAM role for glue with following permission granted
-	-AWSGlueServiceRole
-	-secret_manager_read_policy*
-	-s3_access_policy*
+	- AWSGlueServiceRole
+	- secret_manager_read_policy (*in-line policy*)
+	- s3_access_policy (*in-line policy*)
 	
-	*in-line policy
-
 3. Create glue job to do the data integration.
    refer to the attach script: [glue_s3_to_mongo.py](/glue_s3_to_mongo.py) 
 	
@@ -70,7 +68,7 @@ __What is being done in ```mongo_kickoff.sh```__
    - version: glue 3.0
    - worker type: G1X
    - #of workers: 2
-   - job param:
+   - job params:
 	
 			--source_path	s3://<bucket_name>/heart_attack.json
 			--db_name		HealthDB
@@ -80,17 +78,25 @@ __What is being done in ```mongo_kickoff.sh```__
 		
 ## Part 3 - Visualize data on streamlit Cloud
 
-My Streamlit app URL: https://mongo-chel.streamlit.app/
+*My Streamlit app URL: https://mongo-chel-testing.streamlit.app/
 
-1. Connect github repo to streamlit cloud and create new app.
-2. Put the link of the script [streamlit_app.py](/streamlit_app.py) in the app setting.
-3. Add MongoDB secret to the app setting so that streamlit will be able to pull data from MongoDB.
+1. Visit streamlit cloud and create a new app.
+	- Repository: select this github repo
+	- Main file path: Enter [streamlit_app.py](/streamlit_app.py)
+	
+	* *Note: The Streamlit app URL now is linked to [streamlit_app_local_csv.py](/local_testing/streamlit_app_local_csv.py) since mongoDB server is off)*
+
+2. In the app's *Settings* section, add MongoDB secret so that streamlit will be able to pull data from MongoDB.
 
     	[mongo]
     	host = "12.34.56.78"
     	port = 5000
     	username = "myuser"
     	password = "mypassword"
+		
+3. Make sure to put [requirements.txt](/requirements.txt) in github repo so streamlit will install the Python dependencies accordingly.
+
+![streamlit-app](/streamlit-app.png)
 
 ### About the dataset
 The data is about heart attack risk with different attributes.
