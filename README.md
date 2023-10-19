@@ -55,17 +55,29 @@ __What is being done in ```mongo_kickoff.sh```__
          username		myuser
          password		mypassword
          server_addr		12.34.56.78:5000
+		 
+2. Create IAM role for glue with following permission granted
+	-AWSGlueServiceRole
+	-secret_manager_read_policy*
+	-s3_access_policy*
 	
-2. At Glue, create glue connection
-   
-      	 Connector type: MONGODB
-      	 MongoDB URL: mongodb://12.34.56.78:5000/HealthDB
-      	 Credential type: AWS secret manager
-    (HealthDB is the database name in MongoDB)
+	*in-line policy
 
 3. Create glue job to do the data integration.
    refer to the attach script: [glue_s3_to_mongo.py](/glue_s3_to_mongo.py) 
-   
+	
+   - language: pyspark
+   - version: glue 3.0
+   - worker type: G1X
+   - #of workers: 2
+   - job param:
+	
+			--source_path	s3://<bucket_name>/heart_attack.json
+			--db_name		HealthDB
+			--collection_name	HeartAttack
+			--secret_name	mongo_secret
+			--region_name	ap-northeast-2
+		
 ## Part 3 - Visualize data on streamlit Cloud
 
 My Streamlit app URL: https://mongo-chel.streamlit.app/
