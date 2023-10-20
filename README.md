@@ -35,33 +35,34 @@ __What is being done in ```mongo_kickoff.sh```__
 
          sudo docker run --name mongodb -d -e MONGO_INITDB_ROOT_USERNAME=myuser -e MONGO_INITDB_ROOT_PASSWORD=mypassword -p 5000:27017 mongo
   
-     - Included DB login info in environment parameter: 
+     - Include DB login info in environment parameter: 
     
            MONGO_INITDB_ROOT_USERNAME = myuser
            MONGO_INITDB_ROOT_PASSWORD = mypassword
   
-     - Specified port to be mapped on docker host: 5000
+     - Specify port on docker host to be mapped with: 5000
       
-     - The URI to connect MongoDB will be (let say EC2 public IP = 12.34.56.78):
+     - The URI to connect with MongoDB will be (let say EC2 public IP = 12.34.56.78):
        
             mongodb://myuser:mypassword@12.34.56.78:5000
-  
-- install required python libraries (specified in [requirements.txt](/requirements.txt) )
 	
 ## Part 2 - Push data to MongoDB
 
-1. Create secrets at Secret Manager
-
+1. Upload [JSON data](/heart_attack.json) to S3 bucket: *s3://<bucket_name>/heart_attack.json*
+2. Create secrets at Secret Manager
+   - secret name: mongo_secret
+   - secret type: Other type of secret (Key/value pairs)
+     
          username		myuser
          password		mypassword
          server_addr		12.34.56.78:5000
-		 
-2. Create IAM role for glue with following permission granted
+
+3. Create IAM role for glue with following permissions granted
 	- AWSGlueServiceRole
 	- secret_manager_read_policy (*in-line policy*)
 	- s3_access_policy (*in-line policy*)
 	
-3. Create glue job to do the data integration.
+4. Create glue job to do the data integration.
    refer to the attach script: [glue_s3_to_mongo.py](/glue_s3_to_mongo.py) 
 	
    - language: pyspark
@@ -75,7 +76,12 @@ __What is being done in ```mongo_kickoff.sh```__
 			--collection_name	HeartAttack
 			--secret_name	mongo_secret
 			--region_name	ap-northeast-2
-		
+
+5. Review data at MongoDB Client.
+
+   
+![mongoDB](/mongoDB.PNG)
+  
 ## Part 3 - Visualize data on streamlit Cloud
 
 *My Streamlit app URL: https://mongo-chel-testing.streamlit.app/
@@ -84,7 +90,7 @@ __What is being done in ```mongo_kickoff.sh```__
 	- Repository: select this github repo
 	- Main file path: Enter [streamlit_app.py](/streamlit_app.py)
 	
-	* *Note: The Streamlit app URL now is linked to [streamlit_app_local_csv.py](/local_testing/streamlit_app_local_csv.py) since mongoDB server is off)*
+	* *Note: The Streamlit app URL is linked to [streamlit_app_local_csv.py](/local_testing/streamlit_app_local_csv.py) currently instead since mongoDB server is off*
 
 2. In the app's *Settings* section, add MongoDB secret so that streamlit will be able to pull data from MongoDB.
 
@@ -94,12 +100,12 @@ __What is being done in ```mongo_kickoff.sh```__
     	username = "myuser"
     	password = "mypassword"
 		
-3. Make sure to put [requirements.txt](/requirements.txt) in github repo so streamlit will install the Python dependencies accordingly.
+3. Make sure to put [requirements.txt](/requirements.txt) in the github repo so that streamlit will install the Python dependencies accordingly.
 
 ![streamlit-app](/streamlit-app.png)
 
 ### About the dataset
-The data is about heart attack risk with different attributes.
+The data is about heart attack risk given with different attributes.
 
 *Data source: https://www.kaggle.com/datasets/iamsouravbanerjee/heart-attack-prediction-dataset/data*
 
